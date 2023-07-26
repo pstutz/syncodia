@@ -1,0 +1,35 @@
+/*
+ * Copyright 2023 Justement GmbH
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package syncodia.openai.protocol
+
+case class ChatCompletionRequest(
+    model: ChatCompletionModel,
+    messages: Seq[Message],
+    functions: Option[Seq[ujson.Obj]] = None,
+    // Function call can also be a string, but we don't support that
+    functionCall: Option[FunctionCallRequestParameter] = None,
+    temperature: Option[Float] = None,
+    topP: Option[Float] = None,
+    n: Option[Int] = None,
+    stream: Option[Boolean] = None,
+    stop: Option[Seq[String]] = None,
+    maxTokens: Option[Int] = None,
+    presencePenalty: Option[Float] = None,
+    frequencyPenalty: Option[Float] = None,
+    logitBias: Option[Map[String, Float]] = None,
+    user: Option[String] = None
+) derives SerializeJson.Writer
