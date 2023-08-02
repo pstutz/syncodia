@@ -1,7 +1,3 @@
-//TODO: Remove staging repository once Apache Pekko is released
-ThisBuild / resolvers += "Apache Pekko Staging" at
-  "https://repository.apache.org/content/groups/staging"
-
 // License information
 organizationName := "Justement GmbH"
 startYear        := Some(2023)
@@ -11,7 +7,7 @@ val syncodiaVersion = "0.1.0-SNAPSHOT"
 
 val scala3Version = "3.3.0"
 
-val pekkoHttpVersion      = "1.0.0-RC2"
+val pekkoHttpVersion      = "1.0.0"
 val pekkoVersion          = "1.0.1"
 val uSerializationVersion = "3.1.2"
 val scalaReflectVersion   = "2.13.11"
