@@ -1,3 +1,5 @@
+name := "syncodia"
+
 // License information
 organizationName := "Justement GmbH"
 startYear        := Some(2023)
