@@ -60,18 +60,16 @@ object StructuredInformationExtraction extends App:
       printMessages = true
     )
   execution.onComplete {
-      case Failure(exception) =>
-        println(s"Failed to extract sentiments: ${exception.getMessage}")
-      case _ =>
-        println(s"Sentiment analysis for product features:\n${
-          allAnalyses
-            .groupBy(_.reviewId)
-            .toSeq
-            .sortBy(_._1)
-            .map { case (reviewId, sentiment) =>
-              s"\t$reviewId. ${sentiment.map(s => s"${s.feature}: ${s.sentiment}").mkString(", ")}"
-            }
-            .mkString("\n")
-        }")
-    }
+    case Failure(exception) =>
+      println(s"Failed to extract sentiments: ${exception.getMessage}")
+    case _ =>
+      println(s"Sentiment analysis for product features:\n${allAnalyses
+          .groupBy(_.reviewId)
+          .toSeq
+          .sortBy(_._1)
+          .map { case (reviewId, sentiment) =>
+            s"\t$reviewId. ${sentiment.map(s => s"${s.feature}: ${s.sentiment}").mkString(", ")}"
+          }
+          .mkString("\n")}")
+  }
   execution.andThen(_ => syncodia.actorSystem.terminate())

@@ -61,8 +61,8 @@ object QueryExample extends App:
       ),
       printMessages = true
     )
-    result.onComplete {
-      case Success(result) => println(result.content)
-      case Failure(exception) => println(exception)
-    }
-    result.andThen(_ => syncodia.actorSystem.terminate())
+  result.onComplete {
+    case Success(result)    => println(result.content)
+    case Failure(exception) => println(exception)
+  }
+  result.andThen(_ => syncodia.actorSystem.terminate())

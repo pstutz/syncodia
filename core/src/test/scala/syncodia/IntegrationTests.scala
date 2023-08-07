@@ -16,10 +16,10 @@ case class Weather(location: Location, temperature: Temperature)
 class IntegrationTests extends FunSuite:
 
   val apiFixture: Fixture[Syncodia] = new Fixture[Syncodia]("OpenAiApi"):
-    var api: Syncodia = _
+    var api: Syncodia              = _
     override def beforeAll(): Unit = api = Syncodia()
-    override def afterAll(): Unit = api.actorSystem.terminate()
-    def apply(): Syncodia = api
+    override def afterAll(): Unit  = api.actorSystem.terminate()
+    def apply(): Syncodia          = api
   end apiFixture
 
   override def munitFixtures: Seq[Fixture[?]] = List(apiFixture)
@@ -30,7 +30,10 @@ class IntegrationTests extends FunSuite:
       .executeContinuously(
         "Calculate the power of three of the square root of 2.",
         functions = Seq(
-          ChatFunction(math.pow, "Returns the value of the first argument raised to the power of the second argument."),
+          ChatFunction(
+            math.pow,
+            "Returns the value of the first argument raised to the power of the second argument."
+          ),
           ChatFunction(math.sqrt, "Returns the square root of a Double value.")
         )
       )

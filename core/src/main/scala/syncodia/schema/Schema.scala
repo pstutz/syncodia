@@ -229,9 +229,9 @@ case class ProductSchema(
 end ProductSchema
 
 case class SumSchema(
-                      className: String,
-                      elementSchemas: Map[String, Option[Schema]]
-                    ) extends Schema:
+    className: String,
+    elementSchemas: Map[String, Option[Schema]]
+) extends Schema:
 
   private lazy val ordinalEnums: Map[String, ?] = Reflection
     .getOrdinalEnums(className)
