@@ -26,16 +26,18 @@ import scala.util.Try
 
 object Reflection:
 
-  def box(c: Class[?]): Class[?] = c.getName match
-    case "int"     => classOf[Integer]
-    case "long"    => classOf[java.lang.Long]
-    case "double"  => classOf[java.lang.Double]
-    case "float"   => classOf[java.lang.Float]
-    case "boolean" => classOf[java.lang.Boolean]
-    case "byte"    => classOf[java.lang.Byte]
-    case "char"    => classOf[java.lang.Character]
-    case "short"   => classOf[java.lang.Short]
-    case _         => c
+  private def box(c: Class[?]): Class[?] =
+    import java.lang.*
+    c.getName match
+      case "int"     => classOf[Integer]
+      case "long"    => classOf[Long]
+      case "double"  => classOf[Double]
+      case "float"   => classOf[Float]
+      case "boolean" => classOf[Boolean]
+      case "byte"    => classOf[Byte]
+      case "char"    => classOf[Character]
+      case "short"   => classOf[Short]
+      case _         => c
 
   def findExecutable[T <: Executable](
       maybeName: Option[String],
