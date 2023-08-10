@@ -128,8 +128,7 @@ object StructuredInformationExtraction extends App:
     .execute(
       message,
       functions = Some(ChatFunction(recordReviewSentiments)),
-      reportFunctionResult = false,
-      printMessages = true
+      reportFunctionResult = false
     )
     .onComplete { _ =>
       println(s"Sentiment analysis for product features:\n${allAnalyses
