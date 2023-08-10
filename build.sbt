@@ -28,7 +28,7 @@ lazy val commonSettings = Seq(
     "-new-syntax"                    // Require 'then' and 'do' in control expressions
   ),
   libraryDependencies ++= Seq(
-    "org.scalameta" %% "munit" % munitVersion % Test,
+    "org.scalameta" %% "munit"            % munitVersion % Test,
     "org.scalameta" %% "munit-scalacheck" % munitVersion % Test
   )
 )

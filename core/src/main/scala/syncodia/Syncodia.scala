@@ -16,14 +16,14 @@
 
 package syncodia
 
-import com.typesafe.config.{Config, ConfigFactory}
+import com.typesafe.config.{ Config, ConfigFactory }
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.*
 import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.http.scaladsl.model.ContentTypes.`application/json`
 import org.apache.pekko.http.scaladsl.model.HttpMethods.POST
-import org.apache.pekko.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken}
+import org.apache.pekko.http.scaladsl.model.headers.{ Authorization, OAuth2BearerToken }
 import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling.*
@@ -36,9 +36,9 @@ import syncodia.openai.protocol.ChatCompletionModel.GPT_35_TURBO
 import syncodia.openai.protocol.SerializeJson.*
 import ujson.Value.Value
 
-import scala.concurrent.{ExecutionContext, Future}
-import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.duration.{ Duration, DurationInt, FiniteDuration }
+import scala.util.{ Failure, Success, Try }
 
 implicit given string2Message: Conversion[String, Message] = (s: String) => Message(Role.User, s)
 
@@ -66,8 +66,8 @@ object Syncodia:
 
   def apply(): Syncodia =
     val openAiApiKey: String = Option(System.getProperty(openAiApiKeyVarName))
-        .orElse(Option(System.getenv(openAiApiKeyVarName)))
-        .getOrElse(throw new IllegalArgumentException("No OpenAI API Key provided"))
+      .orElse(Option(System.getenv(openAiApiKeyVarName)))
+      .getOrElse(throw new IllegalArgumentException("No OpenAI API Key provided"))
     Syncodia(openAiApiKey)
 
   def apply(openAiApiKey: String): Syncodia = new Syncodia(openAiApiKey, None)
