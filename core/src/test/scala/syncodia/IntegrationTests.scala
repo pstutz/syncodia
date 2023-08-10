@@ -21,8 +21,8 @@ class IntegrationTests extends FunSuite:
 
   val apiFixture: Fixture[Syncodia] = new Fixture[Syncodia]("OpenAiApi"):
     var api: Syncodia              = _
-    override def beforeAll(): Unit = api = Syncodia()
-    override def afterAll(): Unit  = api.actorSystem.terminate()
+    override def beforeAll(): Unit = if !munitIgnore then api = Syncodia()
+    override def afterAll(): Unit  = if !munitIgnore then api.actorSystem.terminate()
     def apply(): Syncodia          = api
   end apiFixture
 
