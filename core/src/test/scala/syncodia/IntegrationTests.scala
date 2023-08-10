@@ -1,6 +1,8 @@
 package syncodia
 
 import munit.FunSuite
+import syncodia.util.GitHubActions
+import syncodia.util.GitHubActions.isGitHubAction
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -14,6 +16,8 @@ case class Location(lat: Double, lon: Double)
 case class Weather(location: Location, temperature: Temperature)
 
 class IntegrationTests extends FunSuite:
+
+  override def munitIgnore: Boolean = isGitHubAction
 
   val apiFixture: Fixture[Syncodia] = new Fixture[Syncodia]("OpenAiApi"):
     var api: Syncodia              = _
@@ -46,7 +50,6 @@ class IntegrationTests extends FunSuite:
   }
 
   test("fahrenheit to celsius conversion") {
-
     def fahrenheitToCelsius(fahrenheit: Temperature): Temperature =
       val degrees = (fahrenheit.degrees - 32) * 5 / 9
       Temperature(degrees, Scale.Celsius)
@@ -94,7 +97,6 @@ class IntegrationTests extends FunSuite:
   }
 
   test("record and retrieve weather information from text") {
-
     def fahrenheitToCelsius(temperature: Temperature): Temperature =
       assert(temperature.scale == Scale.Fahrenheit)
       val degrees = (temperature.degrees - 32) * 5 / 9
