@@ -11,7 +11,7 @@ val scala3Version = "3.3.0"
 
 val pekkoHttpVersion      = "1.0.0"
 val pekkoVersion          = "1.0.1"
-val uSerializationVersion = "3.1.2"
+val uSerializationVersion = "3.1.3"
 val scalaReflectVersion   = "2.13.11"
 val jTokkitVersion        = "0.6.1"
 val munitVersion          = "0.7.29"
