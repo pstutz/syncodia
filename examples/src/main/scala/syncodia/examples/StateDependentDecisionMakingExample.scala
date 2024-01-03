@@ -17,7 +17,7 @@
 package syncodia.examples
 
 import syncodia.*
-
+import syncodia.openai.protocol.ChatCompletionModel
 import scala.util.Random
 
 enum Action:
@@ -115,6 +115,7 @@ object SimplifiedMarsColonyTycoon extends App:
     .executeContinuously(
       message,
       functions = Seq(ChatFunction(takeAction, "Takes an action and updates the state of the Mars colony.")),
+      model = ChatCompletionModel.GPT_4_TURBO,
       printMessages = true
     )
     .onComplete { tryResponse =>
