@@ -24,6 +24,8 @@ object ChatCompletionModel:
 
   lazy val GPT_4_0613 = "gpt-4-0613"
 
+  lazy val GPT_4_TURBO = "gpt-4-1106-preview"
+
   lazy val GPT_4_32K = "gpt-4-32k"
 
   lazy val GPT_4_32K_0613 = "gpt-4-32k-0613"
