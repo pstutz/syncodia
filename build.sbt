@@ -10,7 +10,7 @@ val syncodiaVersion = "0.1.0-SNAPSHOT"
 val scala3Version = "3.3.1"
 
 val pekkoHttpVersion      = "1.0.0"
-val uSerializationVersion = "3.1.3"
+val uSerializationVersion = "3.1.4"
 val pekkoVersion          = "1.0.2"
 val scalaReflectVersion   = "2.13.12"
 val jTokkitVersion        = "0.6.1"
