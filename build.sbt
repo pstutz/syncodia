@@ -13,7 +13,7 @@ val pekkoHttpVersion      = "1.0.0"
 val uSerializationVersion = "3.1.3"
 val pekkoVersion          = "1.0.2"
 val scalaReflectVersion   = "2.13.12"
-val jTokkitVersion        = "0.6.1"
+val jTokkitVersion        = "1.0.0"
 val munitVersion          = "0.7.29"
 
 lazy val commonSettings = Seq(
