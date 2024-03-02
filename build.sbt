@@ -7,7 +7,7 @@ licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.
 
 val syncodiaVersion = "0.1.0-SNAPSHOT"
 
-val scala3Version = "3.3.1"
+val scala3Version = "3.3.3"
 
 val pekkoHttpVersion      = "1.0.0"
 val uSerializationVersion = "3.1.3"
