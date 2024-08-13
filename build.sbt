@@ -14,7 +14,7 @@ val uSerializationVersion = "3.1.3"
 val pekkoVersion          = "1.0.2"
 val scalaReflectVersion   = "2.13.12"
 val jTokkitVersion        = "0.6.1"
-val munitVersion          = "0.7.29"
+val munitVersion          = "1.0.1"
 
 lazy val commonSettings = Seq(
   version      := syncodiaVersion,
