@@ -4,6 +4,7 @@ import munit.FunSuite
 import syncodia.util.GitHubActions
 import syncodia.util.GitHubActions.isGitHubAction
 
+import scala.compiletime.uninitialized
 import scala.concurrent.ExecutionContext.Implicits.global
 
 enum Scale:
@@ -20,7 +21,7 @@ class IntegrationTests extends FunSuite:
   override def munitIgnore: Boolean = isGitHubAction
 
   val apiFixture: Fixture[Syncodia] = new Fixture[Syncodia]("OpenAiApi"):
-    var api: Syncodia              = _
+    var api: Syncodia              = uninitialized
     override def beforeAll(): Unit = if !munitIgnore then api = Syncodia()
     override def afterAll(): Unit  = if !munitIgnore then api.actorSystem.terminate()
     def apply(): Syncodia          = api
