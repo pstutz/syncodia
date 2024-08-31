@@ -79,7 +79,7 @@ class ExtractSchemaTest extends FunSuite:
   test("functions with one argument") {
     def functionWithOneArg(i: Int): Unit = ()
 
-    val s = functionSchema(functionWithOneArg(_))
+    val s = functionSchema(functionWithOneArg)
     val e = FunctionSchema("functionWithOneArg", None, List(("i", IntegerSchema)), UnitSchema)
     assertEquals(s, e)
   }
