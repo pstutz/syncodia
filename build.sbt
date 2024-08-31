@@ -3,18 +3,18 @@ name := "syncodia"
 // License information
 organizationName := "Justement GmbH"
 startYear        := Some(2023)
-licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))
+licenses += ("Apache-2.0", new URI("https://www.apache.org/licenses/LICENSE-2.0.txt").toURL)
 
 val syncodiaVersion = "0.1.0-SNAPSHOT"
 
-val scala3Version = "3.3.1"
+val scala3Version = "3.5.0"
 
-val pekkoHttpVersion      = "1.0.0"
-val uSerializationVersion = "3.1.3"
-val pekkoVersion          = "1.0.2"
-val scalaReflectVersion   = "2.13.12"
-val jTokkitVersion        = "0.6.1"
-val munitVersion          = "0.7.29"
+val pekkoHttpVersion      = "1.0.1"
+val uSerializationVersion = "4.0.1"
+val pekkoVersion          = "1.0.3"
+val scalaReflectVersion   = "2.13.14"
+val jTokkitVersion        = "1.1.0"
+val munitVersion          = "1.0.1"
 
 lazy val commonSettings = Seq(
   version      := syncodiaVersion,
@@ -29,7 +29,7 @@ lazy val commonSettings = Seq(
   ),
   libraryDependencies ++= Seq(
     "org.scalameta" %% "munit"            % munitVersion % Test,
-    "org.scalameta" %% "munit-scalacheck" % munitVersion % Test
+    "org.scalameta" %% "munit-scalacheck" % "1.0.0" % Test // TODO: Align with munitVersion, once released
   )
 )
 
