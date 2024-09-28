@@ -10,7 +10,7 @@ val syncodiaVersion = "0.1.0-SNAPSHOT"
 val scala3Version = "3.5.0"
 
 val pekkoHttpVersion      = "1.0.1"
-val uSerializationVersion = "4.0.1"
+val uSerializationVersion = "4.0.2"
 val pekkoVersion          = "1.0.3"
 val scalaReflectVersion   = "2.13.14"
 val jTokkitVersion        = "1.1.0"
@@ -29,25 +29,20 @@ lazy val commonSettings = Seq(
   ),
   libraryDependencies ++= Seq(
     "org.scalameta" %% "munit"            % munitVersion % Test,
-    "org.scalameta" %% "munit-scalacheck" % "1.0.0" % Test // TODO: Align with munitVersion, once released
+    "org.scalameta" %% "munit-scalacheck" % "1.0.0"      % Test // TODO: Align with munitVersion, once released
   )
 )
 
-lazy val syncodia = project
-  .in(file("core"))
-  .settings(commonSettings)
-  .settings(
-    name := "syncodia",
-    libraryDependencies ++= Seq(
-      "org.apache.pekko" %% "pekko-http"    % pekkoHttpVersion,
-      "org.apache.pekko" %% "pekko-stream"  % pekkoVersion,
-      "com.lihaoyi"      %% "upickle"       % uSerializationVersion,
-      "com.lihaoyi"      %% "ujson"         % uSerializationVersion,
-      "org.scala-lang"    % "scala-reflect" % scalaReflectVersion,
-      "com.knuddels"      % "jtokkit"       % jTokkitVersion
-    )
+lazy val syncodia = project.in(file("core")).settings(commonSettings).settings(
+  name := "syncodia",
+  libraryDependencies ++= Seq(
+    "org.apache.pekko" %% "pekko-http"    % pekkoHttpVersion,
+    "org.apache.pekko" %% "pekko-stream"  % pekkoVersion,
+    "com.lihaoyi"      %% "upickle"       % uSerializationVersion,
+    "com.lihaoyi"      %% "ujson"         % uSerializationVersion,
+    "org.scala-lang"    % "scala-reflect" % scalaReflectVersion,
+    "com.knuddels"      % "jtokkit"       % jTokkitVersion
   )
+)
 
-lazy val examples = project
-  .settings(commonSettings)
-  .dependsOn(syncodia)
+lazy val examples = project.settings(commonSettings).dependsOn(syncodia)
