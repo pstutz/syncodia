@@ -49,9 +49,7 @@ object ExtractSchema:
       case Block(List(e: Term), _)                        => extractParamNames(e)
       case Inlined(_, _, e)                               => extractParamNames(e)
       case Apply(_, params: List[Ident @unchecked])       => params.map(_.name)
-      case _ =>
-        report
-          .errorAndAbort(s"No paramSchemas found: ${t.show(using Printer.TreeStructure)}", f)
+      case _ => report.errorAndAbort(s"No paramSchemas found: ${t.show(using Printer.TreeStructure)}", f)
     end extractParamNames
 
     val tree                     = f.asTerm
@@ -61,12 +59,10 @@ object ExtractSchema:
     val allTypeArgs              = repr.typeArgs
     val paramTypes               = allTypeArgs.init
     val returnType               = allTypeArgs.last
-    val paramSchemas = paramNames
-      .zip(paramTypes)
-      .foldLeft(List[(String, Schema)]()) { case (paramAcc, (name, tpe)) =>
-        val fieldSchema = extractSchema(tpe)
-        paramAcc :+ name -> fieldSchema
-      }
+    val paramSchemas = paramNames.zip(paramTypes).foldLeft(List[(String, Schema)]()) { case (paramAcc, (name, tpe)) =>
+      val fieldSchema = extractSchema(tpe)
+      paramAcc :+ name -> fieldSchema
+    }
     val returnTypeSchema = extractSchema(returnType)
 
     Expr(FunctionSchema(fnName, None, paramSchemas, returnTypeSchema))
@@ -112,27 +108,20 @@ object ExtractSchema:
       case _ if isEnum && ts.flags.is(Flags.Abstract) => // Enum
         val children   = dealiasedTpe.typeSymbol.children
         val childTrees = children.map(_.tree)
-        val alternatives: Map[String, Option[Schema]] = children
-          .zip(childTrees)
-          .collect {
-            case (c, tpd: Typed) => c.name -> Some(extractSchema(tpd.tpt.tpe))
-            case (c, vd: ValDef) =>
-              val childTpe = vd.tpt.tpe
-              if childTpe == tpe then c.name -> None
-              else
-                val childSchema = extractSchema(childTpe)
-                c.name -> Some(childSchema)
-            case (c, cd: ClassDef) => c.name -> Some(extractSchema(cd.constructor.returnTpt.tpe))
-            case (_, other) =>
-              report.errorAndAbort(
-                s"Unsupported schema extraction for enum $stringRepresentationOfType:\n$other"
-              )
-          }
-          .toMap
+        val alternatives: Map[String, Option[Schema]] = children.zip(childTrees).collect {
+          case (c, tpd: Typed) => c.name -> Some(extractSchema(tpd.tpt.tpe))
+          case (c, vd: ValDef) =>
+            val childTpe = vd.tpt.tpe
+            if childTpe == tpe then c.name -> None
+            else
+              val childSchema = extractSchema(childTpe)
+              c.name -> Some(childSchema)
+          case (c, cd: ClassDef) => c.name -> Some(extractSchema(cd.constructor.returnTpt.tpe))
+          case (_, other) => report
+              .errorAndAbort(s"Unsupported schema extraction for enum $stringRepresentationOfType:\n$other")
+        }.toMap
         SumSchema(className, alternatives)
-      case _ =>
-        report
-          .errorAndAbort(s"Unsupported schema extraction for $stringRepresentationOfType.")
+      case _ => report.errorAndAbort(s"Unsupported schema extraction for $stringRepresentationOfType.")
 
   end extractSchema
 
@@ -193,8 +182,7 @@ object ExtractSchema:
       '{ SequenceSchema(${ Expr(s.className) }, ${ Expr(s.elementSchema) }) }
 
   given ToExpr[OptionSchema] with
-    def apply(s: OptionSchema)(using Quotes): Expr[OptionSchema] =
-      '{ OptionSchema(${ Expr(s.element) }) }
+    def apply(s: OptionSchema)(using Quotes): Expr[OptionSchema] = '{ OptionSchema(${ Expr(s.element) }) }
 
   given ToExpr[MapSchema] with
     def apply(s: MapSchema)(using Quotes): Expr[MapSchema] =

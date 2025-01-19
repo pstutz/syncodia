@@ -39,11 +39,7 @@ object Reflection:
       case "short"   => classOf[Short]
       case _         => c
 
-  def findExecutable[T <: Executable](
-      maybeName: Option[String],
-      candidates: Seq[T],
-      params: Any*
-  ): Option[T] =
+  def findExecutable[T <: Executable](maybeName: Option[String], candidates: Seq[T], params: Any*): Option[T] =
     val boxedParamClasses = params.map(p => box(p.getClass))
     val maybeExecutable: Option[T] = candidates.find { m =>
       def hasMatchingName = maybeName match
@@ -52,8 +48,7 @@ object Reflection:
       val methodSignature           = m.getParameterTypes
       lazy val boxedMethodSignature = methodSignature.map(box)
       def sameParameterCount        = methodSignature.length == boxedParamClasses.length
-      def parametersMatchSignature = boxedMethodSignature
-        .zip(boxedParamClasses)
+      def parametersMatchSignature = boxedMethodSignature.zip(boxedParamClasses)
         .forall { case (methodClass, instanceClass) => methodClass.isAssignableFrom(instanceClass) }
       val found = sameParameterCount && hasMatchingName && parametersMatchSignature
       found
@@ -61,16 +56,13 @@ object Reflection:
     maybeExecutable
 
   def invoke(obj: Any, name: String, params: Any*): Any =
-    val maybeMethod =
-      findExecutable(Some(name), ArraySeq.unsafeWrapArray(obj.getClass.getDeclaredMethods), params*)
+    val maybeMethod = findExecutable(Some(name), ArraySeq.unsafeWrapArray(obj.getClass.getDeclaredMethods), params*)
     maybeMethod match
       case Some(method) =>
         method.setAccessible(true)
         method.invoke(obj, params*)
-      case None =>
-        throw new NoSuchMethodException(
-          s"Could not resolve function $name(${params.map(_.getClass.getName).mkString(", ")})"
-        )
+      case None => throw new NoSuchMethodException(s"Could not resolve function $name(${params.map(_.getClass.getName)
+            .mkString(", ")})")
 
   def getOrdinalEnums(enumClassName: String): Array[?] =
     import reflect.Selectable.reflectiveSelectable
@@ -79,23 +71,16 @@ object Reflection:
     val moduleMirror = mirror.reflectModule(moduleSymbol)
     val companion: { def fromOrdinal(i: Int): Any } = moduleMirror.instance
       .asInstanceOf[{ def fromOrdinal(i: Int): Any }]
-    val values = LazyList
-      .from(0)
-      .map(i => Try(companion.fromOrdinal(i)).toOption)
-      .takeWhile(_.isDefined)
-      .flatten
+    val values = LazyList.from(0).map(i => Try(companion.fromOrdinal(i)).toOption).takeWhile(_.isDefined).flatten
       .toArray
     values
 
   def createEnumInstance(className: String, caseName: String, params: Any*): Any =
-    val parent   = Class.forName(className)
-    val declared = ArraySeq.unsafeWrapArray(parent.getDeclaredClasses)
-    val caseEnum = declared.find(_.getSimpleName == caseName).get
-    val maybeApplyMethod =
-      findExecutable(Some("apply"), ArraySeq.unsafeWrapArray(caseEnum.getDeclaredMethods), params*)
+    val parent           = Class.forName(className)
+    val declared         = ArraySeq.unsafeWrapArray(parent.getDeclaredClasses)
+    val caseEnum         = declared.find(_.getSimpleName == caseName).get
+    val maybeApplyMethod = findExecutable(Some("apply"), ArraySeq.unsafeWrapArray(caseEnum.getDeclaredMethods), params*)
     maybeApplyMethod match
       case Some(applyMethod) => applyMethod.invoke(null, params*)
-      case None =>
-        throw new NoSuchMethodException(
-          s"Could not resolve constructor $caseName(${params.map(_.getClass.getName).mkString(", ")})"
-        )
+      case None => throw new NoSuchMethodException(s"Could not resolve constructor $caseName(${params
+            .map(_.getClass.getName).mkString(", ")})")

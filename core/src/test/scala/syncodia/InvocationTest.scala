@@ -83,11 +83,10 @@ class InvocationTest extends FunSuite:
   }
 
   test("switch FooBar") {
-    def switchFooBar(fb: Seq[FooBar]): Seq[FooBar] =
-      fb.flatMap {
-        case FooBar.Foo    => Seq(FooBar.Bar(1))
-        case FooBar.Bar(i) => List.fill(i)(FooBar.Foo)
-      }
+    def switchFooBar(fb: Seq[FooBar]): Seq[FooBar] = fb.flatMap {
+      case FooBar.Foo    => Seq(FooBar.Bar(1))
+      case FooBar.Bar(i) => List.fill(i)(FooBar.Foo)
+    }
 
     val cf = ChatFunction(switchFooBar)
     val fc = FunctionCall(
