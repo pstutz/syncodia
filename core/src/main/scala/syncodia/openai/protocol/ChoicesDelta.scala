@@ -16,5 +16,4 @@
 
 package syncodia.openai.protocol
 
-case class ChoicesDelta(index: Int, delta: Delta, finishReason: Option[String])
-    derives SerializeJson.ReadWriter
+case class ChoicesDelta(index: Int, delta: Delta, finishReason: Option[String]) derives SerializeJson.ReadWriter

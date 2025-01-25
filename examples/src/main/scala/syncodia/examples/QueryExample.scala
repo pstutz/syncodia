@@ -50,17 +50,14 @@ object QueryExample extends App:
 
   import syncodia.*
 
-  val result = syncodia
-    .execute(
-      "List sci-fi movies rated above 8.0 released after the year 2000.",
-      functions = Seq(
-        ChatFunction(
-          searchMovies,
-          "Searches the movie database with the given genre, minimum rating, and minimum release year."
-        )
-      ),
-      printMessages = true
-    )
+  val result = syncodia.execute(
+    "List sci-fi movies rated above 8.0 released after the year 2000.",
+    functions = Seq(ChatFunction(
+      searchMovies,
+      "Searches the movie database with the given genre, minimum rating, and minimum release year."
+    )),
+    printMessages = true
+  )
   result.onComplete {
     case Success(result)    => println(result.content)
     case Failure(exception) => println(exception)

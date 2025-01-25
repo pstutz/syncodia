@@ -13,37 +13,27 @@ class ExtractSchemaTest extends FunSuite:
   val addressClassName: String = classOf[Address].getCanonicalName
 
   val ADDRESS_SCHEMA: ProductSchema =
-    ProductSchema(
-      addressClassName,
-      List(("city", StringSchema), ("country", StringSchema))
-    )
+    ProductSchema(addressClassName, List(("city", StringSchema), ("country", StringSchema)))
 
-  val ADDRESS_ENTRY: (String, ProductSchema) =
-    (addressClassName, ADDRESS_SCHEMA)
+  val ADDRESS_ENTRY: (String, ProductSchema) = (addressClassName, ADDRESS_SCHEMA)
 
   case class User(name: String, age: Int, address: Address)
 
   val userClassName: String = classOf[User].getCanonicalName
 
-  val USER_SCHEMA: ProductSchema = ProductSchema(
-    userClassName,
-    List(("name", StringSchema), ("age", IntegerSchema), ("address", ADDRESS_SCHEMA))
-  )
+  val USER_SCHEMA: ProductSchema =
+    ProductSchema(userClassName, List(("name", StringSchema), ("age", IntegerSchema), ("address", ADDRESS_SCHEMA)))
 
-  val USER_ENTRY: (String, ProductSchema) =
-    (userClassName, USER_SCHEMA)
+  val USER_ENTRY: (String, ProductSchema) = (userClassName, USER_SCHEMA)
 
   case class ListNode(value: Int, next: Option[ListNode])
 
   val listNodeClassName: String = classOf[ListNode].getCanonicalName
 
-  val LIST_NODE_SCHEMA: ProductSchema = ProductSchema(
-    listNodeClassName,
-    List(("value", IntegerSchema), ("next", OptionSchema(LIST_NODE_SCHEMA)))
-  )
+  val LIST_NODE_SCHEMA: ProductSchema =
+    ProductSchema(listNodeClassName, List(("value", IntegerSchema), ("next", OptionSchema(LIST_NODE_SCHEMA))))
 
-  val LIST_NODE_ENTRY: (String, ProductSchema) =
-    (listNodeClassName, LIST_NODE_SCHEMA)
+  val LIST_NODE_ENTRY: (String, ProductSchema) = (listNodeClassName, LIST_NODE_SCHEMA)
 
   enum Color:
     case Red, Green, Blue
@@ -120,12 +110,7 @@ class ExtractSchemaTest extends FunSuite:
     def functionWithTwoArgs(i: Int, s: String): Unit = ()
 
     val s = functionSchema(functionWithTwoArgs)
-    val e = FunctionSchema(
-      "functionWithTwoArgs",
-      None,
-      List(("i", IntegerSchema), ("s", StringSchema)),
-      UnitSchema
-    )
+    val e = FunctionSchema("functionWithTwoArgs", None, List(("i", IntegerSchema), ("s", StringSchema)), UnitSchema)
     assertEquals(s, e)
   }
 
@@ -134,25 +119,15 @@ class ExtractSchemaTest extends FunSuite:
 
     val s = functionSchema(functionReturningSum)
     val e =
-      FunctionSchema(
-        "functionReturningSum",
-        None,
-        List(("a", IntegerSchema), ("b", IntegerSchema)),
-        IntegerSchema
-      )
+      FunctionSchema("functionReturningSum", None, List(("a", IntegerSchema), ("b", IntegerSchema)), IntegerSchema)
     assertEquals(s, e)
   }
 
   test("updateUser function") {
     def updateUser(user: User, newName: String): User = user.copy(name = newName)
 
-    val s = functionSchema(updateUser)
-    val se = FunctionSchema(
-      "updateUser",
-      None,
-      List(("user", USER_SCHEMA), ("newName", StringSchema)),
-      USER_SCHEMA
-    )
+    val s  = functionSchema(updateUser)
+    val se = FunctionSchema("updateUser", None, List(("user", USER_SCHEMA), ("newName", StringSchema)), USER_SCHEMA)
     assertEquals(s, se)
   }
 
@@ -177,12 +152,7 @@ class ExtractSchemaTest extends FunSuite:
     val e = FunctionSchema(
       "functionWithListOfTupleUsersAddresses",
       None,
-      List(
-        (
-          "usersAddresses",
-          SequenceSchema("scala.collection.immutable.List", userAddressTupleSchema)
-        )
-      ),
+      List(("usersAddresses", SequenceSchema("scala.collection.immutable.List", userAddressTupleSchema))),
       UnitSchema
     )
     assertEquals(s, e)
@@ -193,12 +163,8 @@ class ExtractSchemaTest extends FunSuite:
 
     val s                      = functionSchema(functionWithTupleOfUserAddress)
     val userAddressTupleSchema = TupleSchema("scala.Tuple2", List(USER_SCHEMA, ADDRESS_SCHEMA))
-    val e = FunctionSchema(
-      "functionWithTupleOfUserAddress",
-      None,
-      List(("userAddress", userAddressTupleSchema)),
-      UnitSchema
-    )
+    val e =
+      FunctionSchema("functionWithTupleOfUserAddress", None, List(("userAddress", userAddressTupleSchema)), UnitSchema)
     assertEquals(s, e)
   }
 
@@ -207,12 +173,7 @@ class ExtractSchemaTest extends FunSuite:
 
     val s                    = functionSchema(functionWithTupleOfIntString)
     val intStringTupleSchema = TupleSchema("scala.Tuple2", List(IntegerSchema, StringSchema))
-    val e = FunctionSchema(
-      "functionWithTupleOfIntString",
-      None,
-      List(("intString", intStringTupleSchema)),
-      UnitSchema
-    )
+    val e = FunctionSchema("functionWithTupleOfIntString", None, List(("intString", intStringTupleSchema)), UnitSchema)
     assertEquals(s, e)
   }
 
@@ -233,13 +194,7 @@ class ExtractSchemaTest extends FunSuite:
     def functionWithOptionOfInt(option: Option[Int]): Unit = ()
 
     val s = functionSchema(functionWithOptionOfInt)
-    val e =
-      FunctionSchema(
-        "functionWithOptionOfInt",
-        None,
-        List(("option", OptionSchema(IntegerSchema))),
-        UnitSchema
-      )
+    val e = FunctionSchema("functionWithOptionOfInt", None, List(("option", OptionSchema(IntegerSchema))), UnitSchema)
     assertEquals(s, e)
   }
 
@@ -259,15 +214,9 @@ class ExtractSchemaTest extends FunSuite:
   test("function with tuple of options (Option[Int], Option[String]) as argument") {
     def functionWithTupleOfOptions(tupleOfOptions: (Option[Int], Option[String])): Unit = ()
 
-    val s = functionSchema(functionWithTupleOfOptions)
-    val tupleSchema =
-      TupleSchema("scala.Tuple2", List(OptionSchema(IntegerSchema), OptionSchema(StringSchema)))
-    val e = FunctionSchema(
-      "functionWithTupleOfOptions",
-      None,
-      List(("tupleOfOptions", tupleSchema)),
-      UnitSchema
-    )
+    val s           = functionSchema(functionWithTupleOfOptions)
+    val tupleSchema = TupleSchema("scala.Tuple2", List(OptionSchema(IntegerSchema), OptionSchema(StringSchema)))
+    val e = FunctionSchema("functionWithTupleOfOptions", None, List(("tupleOfOptions", tupleSchema)), UnitSchema)
     assertEquals(s, e)
   }
 
@@ -278,15 +227,7 @@ class ExtractSchemaTest extends FunSuite:
     val e = FunctionSchema(
       "processColor",
       None,
-      List(
-        (
-          "color",
-          SumSchema(
-            colorClassName,
-            Map(("Red", None), ("Green", None), ("Blue", None))
-          )
-        )
-      ),
+      List(("color", SumSchema(colorClassName, Map(("Red", None), ("Green", None), ("Blue", None))))),
       UnitSchema
     )
     assertEquals(s, e)
@@ -299,19 +240,7 @@ class ExtractSchemaTest extends FunSuite:
     val e = FunctionSchema(
       "processColorWithValue",
       None,
-      List(
-        (
-          "color",
-          SumSchema(
-            colorWithValueClassName,
-            Map(
-              ("Red", None),
-              ("Green", None),
-              ("Blue", None)
-            )
-          )
-        )
-      ),
+      List(("color", SumSchema(colorWithValueClassName, Map(("Red", None), ("Green", None), ("Blue", None))))),
       UnitSchema
     )
     assertEquals(s, e)
@@ -324,27 +253,13 @@ class ExtractSchemaTest extends FunSuite:
     val e = FunctionSchema(
       "processFooBar",
       None,
-      List(
-        (
-          "t",
-          SumSchema(
-            fooBarClassName,
-            Map(
-              ("Foo", None),
-              (
-                "Bar",
-                Some(
-                  ProductSchema(
-                    barClassName,
-                    List(("i", IntegerSchema)),
-                    isEnum = true
-                  )
-                )
-              )
-            )
-          )
+      List((
+        "t",
+        SumSchema(
+          fooBarClassName,
+          Map(("Foo", None), ("Bar", Some(ProductSchema(barClassName, List(("i", IntegerSchema)), isEnum = true))))
         )
-      ),
+      )),
       UnitSchema
     )
     assertEquals(s, e)

@@ -26,8 +26,6 @@ case class ChatCompletionResponse(
     usage: Usage
 ) derives SerializeJson.ReadWriter:
 
-  def maybeContent: Option[String] = choices.headOption.flatMap { choice =>
-    Option(choice.message.content)
-  }
+  def maybeContent: Option[String] = choices.headOption.flatMap(choice => Option(choice.message.content))
 
   def content: String = maybeContent.getOrElse("")
