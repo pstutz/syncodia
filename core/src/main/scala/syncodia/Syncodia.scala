@@ -16,14 +16,14 @@
 
 package syncodia
 
-import com.typesafe.config.{ Config, ConfigFactory }
+import com.typesafe.config.{Config, ConfigFactory}
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.http.scaladsl.*
 import org.apache.pekko.http.scaladsl.model.*
 import org.apache.pekko.http.scaladsl.model.ContentTypes.`application/json`
 import org.apache.pekko.http.scaladsl.model.HttpMethods.POST
-import org.apache.pekko.http.scaladsl.model.headers.{ Authorization, OAuth2BearerToken }
+import org.apache.pekko.http.scaladsl.model.headers.{Authorization, OAuth2BearerToken}
 import org.apache.pekko.http.scaladsl.model.sse.ServerSentEvent
 import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshal
 import org.apache.pekko.http.scaladsl.unmarshalling.sse.EventStreamUnmarshalling.*
@@ -36,14 +36,13 @@ import syncodia.openai.protocol.ChatCompletionModel.GPT_35_TURBO
 import syncodia.openai.protocol.SerializeJson.*
 import ujson.Value.Value
 
-import scala.concurrent.{ ExecutionContext, Future }
-import scala.concurrent.duration.{ Duration, DurationInt, FiniteDuration }
-import scala.util.{ Failure, Success, Try }
+import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.duration.{Duration, DurationInt, FiniteDuration}
+import scala.util.{Failure, Success, Try}
 
 implicit given string2Message: Conversion[String, Message] = (s: String) => Message(Role.User, s)
 
-implicit given string2Messages: Conversion[String, Seq[Message]] =
-  (s: String) => Seq(Message(Role.User, s))
+implicit given string2Messages: Conversion[String, Seq[Message]] = (s: String) => Seq(Message(Role.User, s))
 
 implicit given message2messages: Conversion[Message, Seq[Message]] = (msg: Message) => Seq(msg)
 
@@ -60,8 +59,7 @@ object Syncodia:
 
   val maxBackoffDelay: FiniteDuration = 10.seconds
 
-  val defaultPekkoConfig: Config = ConfigFactory
-    .parseString("""pekko.loglevel = "ERROR"""")
+  val defaultPekkoConfig: Config = ConfigFactory.parseString("""pekko.loglevel = "ERROR"""")
     .withFallback(ConfigFactory.defaultApplication())
 
   def apply(): Syncodia =
@@ -72,15 +70,13 @@ object Syncodia:
 
   def apply(openAiApiKey: String): Syncodia = new Syncodia(openAiApiKey, None)
 
-  def apply(openAiApiKey: String, actorSystem: ActorSystem): Syncodia =
-    new Syncodia(openAiApiKey, Some(actorSystem))
+  def apply(openAiApiKey: String, actorSystem: ActorSystem): Syncodia = new Syncodia(openAiApiKey, Some(actorSystem))
 
 end Syncodia
 
 class Syncodia(openAiApiKey: String, maybeProvidedActorSystem: Option[ActorSystem]):
 
-  implicit val actorSystem: ActorSystem = maybeProvidedActorSystem
-    .getOrElse(ActorSystem("default", defaultPekkoConfig))
+  implicit val actorSystem: ActorSystem = maybeProvidedActorSystem.getOrElse(ActorSystem("default", defaultPekkoConfig))
 
   implicit val executionContext: ExecutionContext = actorSystem.getDispatcher
 
@@ -105,38 +101,33 @@ class Syncodia(openAiApiKey: String, maybeProvidedActorSystem: Option[ActorSyste
         val tryParse = Try(SerializeJson.read[ChatCompletionResponse](responseString))
         tryParse match
           case Success(chatCompletionResponse) => chatCompletionResponse
-          case Failure(e) => throw ParseException(s"Failed to parse response: $responseString", e)
+          case Failure(e)                      => throw ParseException(s"Failed to parse response: $responseString", e)
       }
     }
 
   end executeChatCompletionRequest
 
-  private[syncodia] def runApiRequest(r: HttpRequest): Future[HttpResponse] = Http()
-    .singleRequest(r)
+  private[syncodia] def runApiRequest(r: HttpRequest): Future[HttpResponse] = Http().singleRequest(r)
     .flatMap { response =>
       response.status.intValue() match
         case code if code >= 200 && code < 300 => Future.successful(response)
-        case errorCode =>
-          Unmarshal(response.entity).to[String].flatMap { responseBody =>
+        case errorCode => Unmarshal(response.entity).to[String].flatMap { responseBody =>
             errorCode match
               case 401 =>
                 if responseBody.contains("Invalid Authentication") then
                   Future.failed(ApiException.InvalidAuthenticationException(responseBody))
                 else if responseBody.contains("Incorrect API key provided") then
                   Future.failed(ApiException.IncorrectApiKeyException(responseBody))
-                else if responseBody
-                    .contains("You must be a member of an organization to use the API")
-                then Future.failed(ApiException.NoMembershipException(responseBody))
+                else if responseBody.contains("You must be a member of an organization to use the API") then
+                  Future.failed(ApiException.NoMembershipException(responseBody))
                 else Future.failed(ApiException.UnhandledException(401, responseBody))
               case 429 if responseBody.contains("Rate limit reached") =>
                 Future.failed(ApiException.RateLimitException(responseBody))
               case 429 if responseBody.contains("exceeded your current quota") =>
                 Future.failed(ApiException.QuotaExceededException(responseBody))
-              case 500 => Future.failed(ApiException.ServerErrorException(responseBody))
-              case 503 => Future.failed(ApiException.OverloadedException(responseBody))
-              case unhandledCode =>
-                Future
-                  .failed(ApiException.UnhandledException(unhandledCode, responseBody))
+              case 500           => Future.failed(ApiException.ServerErrorException(responseBody))
+              case 503           => Future.failed(ApiException.OverloadedException(responseBody))
+              case unhandledCode => Future.failed(ApiException.UnhandledException(unhandledCode, responseBody))
           }
     }
 
@@ -203,8 +194,7 @@ class Syncodia(openAiApiKey: String, maybeProvidedActorSystem: Option[ActorSyste
       case Some(f)                           => Map(f.name -> f)
       case None                              => Map.empty
       case seq: Seq[ChatFunction @unchecked] => seq.map(f => f.name -> f).toMap
-    val responseFuture =
-      complete(messages, model, functions, maxTokens, temperature, maxApiRetryAttempts)
+    val responseFuture = complete(messages, model, functions, maxTokens, temperature, maxApiRetryAttempts)
     responseFuture.flatMap { response =>
       val maybeMessage = response.choices.headOption.map(_.message)
       if printMessages then maybeMessage.foreach(m => println(m.pretty))
@@ -215,8 +205,7 @@ class Syncodia(openAiApiKey: String, maybeProvidedActorSystem: Option[ActorSyste
           val (result, isSuccess) = functionsByName.get(functionName) match
             case None => s"No function with name $functionName found" -> false
             case Some(chatFunction) =>
-              val (resultValue, resultString) = chatFunction
-                .invokeWithParams(functionCall.arguments)
+              val (resultValue, resultString) = chatFunction.invokeWithParams(functionCall.arguments)
               resultString -> !resultValue.isInstanceOf[Throwable]
           val resultMessage = Message(Role.Function, result, Some(functionName))
           if printMessages then println(resultMessage.pretty)
@@ -267,20 +256,18 @@ class Syncodia(openAiApiKey: String, maybeProvidedActorSystem: Option[ActorSyste
 
     def recExecute(recMessages: Seq[Message]): Future[ChatCompletionResponse] =
       val updatedMaxTokens =
-        if maxTokens == -1 then -1
-        else maxTokens - recMessages.drop(messages.length).map(_.tokenCount).sum
-      val responseFuture =
-        execute(
-          recMessages,
-          model,
-          functions,
-          reportFunctionResult = true,
-          updatedMaxTokens,
-          temperature,
-          maxApiRetryAttempts,
-          maxFunctionCallRetryAttempts,
-          printMessages
-        )
+        if maxTokens == -1 then -1 else maxTokens - recMessages.drop(messages.length).map(_.tokenCount).sum
+      val responseFuture = execute(
+        recMessages,
+        model,
+        functions,
+        reportFunctionResult = true,
+        updatedMaxTokens,
+        temperature,
+        maxApiRetryAttempts,
+        maxFunctionCallRetryAttempts,
+        printMessages
+      )
       responseFuture.flatMap { response =>
         response.choices.headOption match
           case Some(choice) if choice.finishReason == "function_call" =>
@@ -304,27 +291,21 @@ class Syncodia(openAiApiKey: String, maybeProvidedActorSystem: Option[ActorSyste
     val body    = SerializeJson.write(ccr)
     val request = chatCompletionRequestTemplate.withEntity(HttpEntity(`application/json`, body))
     val sseSourceFuture: Future[Source[ServerSentEvent, NotUsed]] =
-      retryWithExponentialBackoff(() => runApiRequest(request), maxRetryAttempts).flatMap { response =>
-        Unmarshal(response.entity).to[Source[ServerSentEvent, NotUsed]]
-      }
+      retryWithExponentialBackoff(() => runApiRequest(request), maxRetryAttempts)
+        .flatMap(response => Unmarshal(response.entity).to[Source[ServerSentEvent, NotUsed]])
     val sseSource: Source[ServerSentEvent, Future[NotUsed]] = Source.futureSource(sseSourceFuture)
 
-    sseSource
-      .takeWhile(sse => sse.data != "[DONE]", inclusive = false)
-      .map { sse =>
-        val tryJson = Try(read[ChatCompletionDeltaResponse](sse.data))
-        tryJson match
-          case Failure(exception) =>
-            throw new Exception(
-              s"""Error when parsing
-                 |${sse.data}
-                 |as a ChatCompletionDeltaResponse: '${exception.getMessage}'""".stripMargin,
-              exception
-            )
-          case Success(parsed) => parsed
-      }
-      .asSourceWithContext(identity)
-      .map(parsed => parsed.completion)
+    sseSource.takeWhile(sse => sse.data != "[DONE]", inclusive = false).map { sse =>
+      val tryJson = Try(read[ChatCompletionDeltaResponse](sse.data))
+      tryJson match
+        case Failure(exception) => throw new Exception(
+            s"""Error when parsing
+               |${sse.data}
+               |as a ChatCompletionDeltaResponse: '${exception.getMessage}'""".stripMargin,
+            exception
+          )
+        case Success(parsed) => parsed
+    }.asSourceWithContext(identity).map(parsed => parsed.completion)
 
   end runStreamingChatCompletionRequest
 

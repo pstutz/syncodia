@@ -27,15 +27,12 @@ case class ColonyState(production: Int, happiness: Int, dissent: Int, recentDeve
 
 object SimplifiedMarsColonyTycoon extends App:
 
-  var colonyState: ColonyState =
-    ColonyState(40, 40, 40, "You've just assumed command of the Mars Colony.")
+  var colonyState: ColonyState = ColonyState(40, 40, 40, "You've just assumed command of the Mars Colony.")
 
   var gameOver: Boolean = false
 
   def takeAction(action: Action): ColonyState =
-    if gameOver then
-      return colonyState
-        .copy(recentDevelopment = "The game is over, you can't take any more actions.")
+    if gameOver then return colonyState.copy(recentDevelopment = "The game is over, you can't take any more actions.")
 
     action match
       case Action.BoostProduction =>
@@ -43,15 +40,13 @@ object SimplifiedMarsColonyTycoon extends App:
           colonyState = colonyState.copy(
             production = (colonyState.production + 10).min(100),
             happiness = (colonyState.happiness - 5).max(0),
-            recentDevelopment =
-              "Your investment into productivity was successful, but it has led to some discontent."
+            recentDevelopment = "Your investment into productivity was successful, but it has led to some discontent."
           )
         else // 20% chance of failure
           colonyState = colonyState.copy(
             production = (colonyState.production - 10).max(0),
             happiness = (colonyState.happiness - 15).max(0),
-            recentDevelopment =
-              "Oh no, a mining accident! This has impacted productivity and decreased happiness."
+            recentDevelopment = "Oh no, a mining accident! This has impacted productivity and decreased happiness."
           )
 
       case Action.RedistributeWealth =>
@@ -89,8 +84,7 @@ object SimplifiedMarsColonyTycoon extends App:
       colonyState = colonyState.copy(recentDevelopment =
         "Dissent has reached critical levels. A revolution has broken out! Game over. What was your mistake?"
       )
-    else if colonyState.production >= 90 && colonyState.happiness >= 50 && colonyState.dissent < 50
-    then
+    else if colonyState.production >= 90 && colonyState.happiness >= 50 && colonyState.dissent < 50 then
       gameOver = true
       colonyState = colonyState.copy(recentDevelopment =
         "Congratulations! Your colony's production has reached optimal levels, happiness is high and dissent is low. You've won the game! What was your strategy?"
@@ -109,17 +103,16 @@ object SimplifiedMarsColonyTycoon extends App:
       |Your goal is to reach a productivity level of 90 or more, a happiness level of 50 or more, and keep dissent below 50. If dissent reaches 80, a revolution will occur, and the game will end.
       |Each action has consequences that can affect production, happiness, and dissent in the colony. The results of your actions will be probabilistic, so the outcome may not always be in your favor.
       |Keep taking actions by calling the `takeAction` function. After each action, determine what you need to do in order to win the game. Continue by taking an action that gets the colony state closer to the win condition of the game. The game continues until you either win by reaching the required productivity and happiness levels while keeping dissent low, or lose by allowing dissent to reach 80 or more.
-      |Never ask questions, keep calling the `takeAction` function until the game is over. When the game is over, stop taking actions.""".stripMargin
+      |Never ask questions, keep calling the `takeAction` function until the game is over. When the game is over, stop taking actions."""
+      .stripMargin
 
-  syncodia
-    .executeContinuously(
-      message,
-      functions = Seq(ChatFunction(takeAction, "Takes an action and updates the state of the Mars colony.")),
-      model = ChatCompletionModel.GPT_4_TURBO,
-      printMessages = true
-    )
-    .onComplete { tryResponse =>
-      tryResponse.toOption.foreach(r => println(r.content))
-      println(s"Final state of the colony: $colonyState")
-      syncodia.actorSystem.terminate()
-    }
+  syncodia.executeContinuously(
+    message,
+    functions = Seq(ChatFunction(takeAction, "Takes an action and updates the state of the Mars colony.")),
+    model = ChatCompletionModel.GPT_4_TURBO,
+    printMessages = true
+  ).onComplete { tryResponse =>
+    tryResponse.toOption.foreach(r => println(r.content))
+    println(s"Final state of the colony: $colonyState")
+    syncodia.actorSystem.terminate()
+  }

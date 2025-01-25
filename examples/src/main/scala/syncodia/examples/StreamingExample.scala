@@ -26,7 +26,4 @@ object StreamingExample extends App:
 
   val source = syncodia.completeStreaming("Tell me a long joke")
 
-  source.withoutContext
-    .log("error")
-    .runForeach(r => print(r))
-    .andThen(_ => syncodia.actorSystem.terminate())
+  source.withoutContext.log("error").runForeach(r => print(r)).andThen(_ => syncodia.actorSystem.terminate())

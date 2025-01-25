@@ -1,7 +1,7 @@
 package syncodia.openai.protocol
 
 import munit.*
-import syncodia.openai.protocol.SerializeJson.{ camelToSnake, snakeToCamel }
+import syncodia.openai.protocol.SerializeJson.{camelToSnake, snakeToCamel}
 
 class SerializeJsonTest extends FunSuite:
 

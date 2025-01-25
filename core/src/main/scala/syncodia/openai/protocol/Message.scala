@@ -19,12 +19,8 @@ package syncodia.openai.protocol
 import syncodia.openai.tokenizer.JTokkit
 import syncodia.schema.FunctionSchema
 
-case class Message(
-    role: Role,
-    content: String,
-    name: Option[String] = None,
-    functionCall: Option[FunctionCall] = None
-) derives SerializeJson.ReadWriter:
+case class Message(role: Role, content: String, name: Option[String] = None, functionCall: Option[FunctionCall] = None)
+    derives SerializeJson.ReadWriter:
 
   def pretty: String =
     val functionCallString: String = functionCall match

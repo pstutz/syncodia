@@ -25,11 +25,9 @@ object SerializeJson extends upickle.AttributeTagged:
   private val camelToSnakeRegex: Regex = "(?<=[a-z])([A-Z])".r
   private val snakeToCamelRegex: Regex = "_([a-z])".r
 
-  def camelToSnake(s: String): String =
-    camelToSnakeRegex.replaceAllIn(s, m => "_" + m.group(1)).toLowerCase
+  def camelToSnake(s: String): String = camelToSnakeRegex.replaceAllIn(s, m => "_" + m.group(1)).toLowerCase
 
-  def snakeToCamel(s: String): String =
-    snakeToCamelRegex.replaceAllIn(s, _.group(1).toUpperCase)
+  def snakeToCamel(s: String): String = snakeToCamelRegex.replaceAllIn(s, _.group(1).toUpperCase)
 
   override def objectAttributeKeyReadMap(s: CharSequence): String = snakeToCamel(s.toString)
 

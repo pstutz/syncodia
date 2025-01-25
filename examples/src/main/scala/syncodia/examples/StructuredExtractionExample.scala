@@ -42,34 +42,24 @@ object StructuredInformationExtraction extends App:
   def recordReviewSentiments(analyses: Seq[FeatureSentimentAnalysis]): Unit = allAnalyses = analyses
 
   val message = s"""|Extract sentiments about product features from these reviews:
-                    |${reviews.zipWithIndex
-                     .map { case (review, idx) =>
-                       s"Review #${idx + 1}: '$review'"
-                     }
+                    |${reviews.zipWithIndex.map { case (review, idx) => s"Review #${idx + 1}: '$review'" }
                      .mkString("\n")}""".stripMargin
 
   val syncodia = Syncodia()
 
   import syncodia.*
 
-  val execution = syncodia
-    .execute(
-      message,
-      functions = Some(ChatFunction(recordReviewSentiments)),
-      reportFunctionResult = false,
-      printMessages = true
-    )
+  val execution = syncodia.execute(
+    message,
+    functions = Some(ChatFunction(recordReviewSentiments)),
+    reportFunctionResult = false,
+    printMessages = true
+  )
   execution.onComplete {
-    case Failure(exception) =>
-      println(s"Failed to extract sentiments: ${exception.getMessage}")
-    case _ =>
-      println(s"Sentiment analysis for product features:\n${allAnalyses
-          .groupBy(_.reviewId)
-          .toSeq
-          .sortBy(_._1)
+    case Failure(exception) => println(s"Failed to extract sentiments: ${exception.getMessage}")
+    case _ => println(s"Sentiment analysis for product features:\n${allAnalyses.groupBy(_.reviewId).toSeq.sortBy(_._1)
           .map { case (reviewId, sentiment) =>
             s"\t$reviewId. ${sentiment.map(s => s"${s.feature}: ${s.sentiment}").mkString(", ")}"
-          }
-          .mkString("\n")}")
+          }.mkString("\n")}")
   }
   execution.andThen(_ => syncodia.actorSystem.terminate())

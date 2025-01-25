@@ -27,8 +27,7 @@ case class FunctionCallRequestParameter(
 object FunctionCallRequestParameter:
 
   implicit val rw: SerializeJson.ReadWriter[FunctionCallRequestParameter] = SerializeJson
-    .readwriter[Map[String, String]]
-    .bimap[FunctionCallRequestParameter](
+    .readwriter[Map[String, String]].bimap[FunctionCallRequestParameter](
       (fcrp: FunctionCallRequestParameter) => Map("name" -> fcrp.functionName),
       (functionName: Map[String, String]) => FunctionCallRequestParameter(functionName.values.head)
     )

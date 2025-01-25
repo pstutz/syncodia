@@ -35,21 +35,15 @@ object ChatFunction:
 
   inline def apply[F](inline f: F, description: String = ""): ChatFunction =
     val fs: FunctionSchema =
-      if description.nonEmpty then functionSchema(f).copy(maybeDescription = Some(description))
-      else functionSchema(f)
+      if description.nonEmpty then functionSchema(f).copy(maybeDescription = Some(description)) else functionSchema(f)
 
     def invokeWithParams(parametersJsonString: String): (Any, String) = Try {
       val json = ujson.read(parametersJsonString)
       fs.readFromJson(json).asInstanceOf[Seq[Any]]
     } match
-      case Failure(exception) =>
-        exception ->
-          s"Parameter parsing failed because ${exception.getMessage}"
-      case Success(parameterValues) =>
-        Try(Reflection.invoke(f, fs.name, parameterValues*)) match
-          case Failure(exception) =>
-            exception ->
-              fs.prettyFailure(parametersJsonString, exception.getMessage)
+      case Failure(exception) => exception -> s"Parameter parsing failed because ${exception.getMessage}"
+      case Success(parameterValues) => Try(Reflection.invoke(f, fs.name, parameterValues*)) match
+          case Failure(exception) => exception -> fs.prettyFailure(parametersJsonString, exception.getMessage)
           case Success(resultValue) =>
             val resultAsJson = fs.writeToJson(resultValue)
             val prettyResult = fs.prettySuccess(parametersJsonString, resultAsJson.render())

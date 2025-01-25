@@ -20,11 +20,8 @@ import java.io.IOException
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.duration.FiniteDuration
 
-enum ApiException(
-    val statusCode: Int,
-    val message: String,
-    val maybeRetryAfter: Option[FiniteDuration]
-) extends IOException(message):
+enum ApiException(val statusCode: Int, val message: String, val maybeRetryAfter: Option[FiniteDuration])
+    extends IOException(message):
 
   case InvalidAuthenticationException(override val message: String) extends ApiException(401, message, None)
 
@@ -34,8 +31,7 @@ enum ApiException(
 
   case RateLimitException(override val message: String) extends ApiException(429, message, Some(1000.millis))
 
-  case QuotaExceededException(override val message: String)
-      extends ApiException(429, message, Some(1000.millis))
+  case QuotaExceededException(override val message: String) extends ApiException(429, message, Some(1000.millis))
 
   case ServerErrorException(override val message: String) extends ApiException(500, message, Some(100.millis))
 
